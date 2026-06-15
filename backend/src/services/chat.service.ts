@@ -45,15 +45,15 @@ if (
 ) {
   reply = knowledge
     .map(
-      (item) =>
-        `${item.title}: ${item.content}`
-    )
+  (item: any) =>
+    `${item.title}: ${item.content}`
+)
     .join("\n\n");
 } else {
   // ===== DIRECT KNOWLEDGE BASE SEARCH =====
 
-  const matchedKnowledge =
-    knowledge.find((item) => {
+ const matchedKnowledge =
+  knowledge.find((item: any) => {
       const title =
         item.title.toLowerCase();
 
@@ -85,10 +85,10 @@ if (
         );
 
       const knowledgeText = knowledge
-        .map(
-          (item) =>
-            `${item.title}: ${item.content}`
-        )
+  .map(
+    (item: any) =>
+      `${item.title}: ${item.content}`
+  )
         .join("\n\n");
 
       const historyText = history
