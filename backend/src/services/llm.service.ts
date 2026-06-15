@@ -15,26 +15,58 @@ const genAI = new GoogleGenerativeAI(
 );
 
 export const llmService = {
-  async generateReply(prompt: string): Promise<string> {
+  async generateReply(
+    prompt: string
+  ): Promise<string> {
     try {
-      const model = genAI.getGenerativeModel({
-  model: "gemini-2.5-flash"
-});
+      const model =
+        genAI.getGenerativeModel({
+          model: "gemini-2.5-flash",
+        });
 
-      const result = await model.generateContent(prompt);
+      let lastError: any;
 
-      return result.response.text();
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        try {
+          const result =
+            await model.generateContent(
+              prompt
+            );
+
+          return result.response.text();
+        } catch (error) {
+          lastError = error;
+
+          console.log(
+            `Gemini attempt ${attempt} failed. Retrying...`
+          );
+
+          await new Promise((resolve) =>
+            setTimeout(resolve, 3000)
+          );
+        }
+      }
+
+      throw lastError;
     } catch (error: any) {
-      console.log("\n========== FULL GEMINI ERROR ==========\n");
+      console.log(
+        "\n========== FULL GEMINI ERROR ==========\n"
+      );
 
       console.dir(error, {
         depth: null,
       });
 
-      console.log("\n=======================================\n");
+      console.log(
+        "\n=======================================\n"
+      );
 
       if (error?.status === 429) {
-        return "Gemini rate limit reached. Please try again in a minute.";
+        return "The AI service is receiving too many requests right now. Please try again in a minute.";
+      }
+
+      if (error?.status === 503) {
+        return "The AI service is temporarily busy. Please try again in a few seconds.";
       }
 
       if (error?.status === 401) {

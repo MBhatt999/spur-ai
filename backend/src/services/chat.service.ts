@@ -28,29 +28,77 @@ export const chatService = {
       message
     );
 
-    const history =
-      await messageRepository.getConversationMessages(
-        conversation.id
-      );
-
     const knowledge =
       await knowledgeRepository.getAll();
 
-    const knowledgeText = knowledge
-      .map(
-        (item) =>
-          `${item.title}: ${item.content}`
-      )
-      .join("\n\n");
+    const lowerMessage =
+      message.toLowerCase();
 
-    const historyText = history
-      .map(
-        (msg) =>
-          `${msg.sender}: ${msg.text}`
-      )
-      .join("\n");
+    let reply = "";
 
-    const prompt = `
+// ===== LIST ALL KNOWLEDGE =====
+
+if (
+  lowerMessage.includes("list all") ||
+  lowerMessage.includes("all support") ||
+  lowerMessage.includes("all information")
+) {
+  reply = knowledge
+    .map(
+      (item) =>
+        `${item.title}: ${item.content}`
+    )
+    .join("\n\n");
+} else {
+  // ===== DIRECT KNOWLEDGE BASE SEARCH =====
+
+  const matchedKnowledge =
+    knowledge.find((item) => {
+      const title =
+        item.title.toLowerCase();
+
+      return (
+        lowerMessage.includes(title) ||
+        (title.includes("payment") &&
+          lowerMessage.includes("payment")) ||
+        (title.includes("tracking") &&
+          lowerMessage.includes("track")) ||
+        (title.includes("cancellation") &&
+          lowerMessage.includes("cancel")) ||
+        (title.includes("shipping") &&
+          lowerMessage.includes("ship")) ||
+        (title.includes("return") &&
+          lowerMessage.includes("return")) ||
+        (title.includes("support") &&
+          lowerMessage.includes("support"))
+      );
+    });
+
+  if (matchedKnowledge) {
+    reply = matchedKnowledge.content;
+  } else {
+      // ===== GEMINI FALLBACK =====
+
+      const history =
+        await messageRepository.getConversationMessages(
+          conversation.id
+        );
+
+      const knowledgeText = knowledge
+        .map(
+          (item) =>
+            `${item.title}: ${item.content}`
+        )
+        .join("\n\n");
+
+      const historyText = history
+        .map(
+          (msg) =>
+            `${msg.sender}: ${msg.text}`
+        )
+        .join("\n");
+
+      const prompt = `
 You are a helpful customer support agent for an e-commerce store.
 
 Use the knowledge base below when answering.
@@ -70,30 +118,25 @@ Rules:
 - If the answer is not in the knowledge base, say you are unsure.
 `;
 
-    console.log("\n===== PROMPT =====\n");
-    console.log(prompt);
-    console.log("\n==================\n");
-
-    let reply = "";
-
-    try {
-      reply =
-        await llmService.generateReply(
-          prompt
+      try {
+        reply =
+          await llmService.generateReply(
+            prompt
+          );
+      } catch (error) {
+        console.error(
+          "========== GEMINI ERROR =========="
         );
-    } catch (error: any) {
-      console.error(
-        "========== GEMINI ERROR =========="
-      );
-      console.error(error);
-      console.error(
-        "=================================="
-      );
+        console.error(error);
+        console.error(
+          "=================================="
+        );
 
-      reply =
-        "Sorry, I'm currently unable to respond. Please try again later.";
+        reply =
+          "Sorry, I'm currently unable to respond.";
+      }
     }
-
+}
     await messageRepository.create(
       conversation.id,
       "AI",

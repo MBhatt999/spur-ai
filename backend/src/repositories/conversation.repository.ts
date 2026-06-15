@@ -12,4 +12,12 @@ export const conversationRepository = {
       where: { id },
     });
   },
+
+  async getAll() {
+    return prisma.conversation.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+  },
 };

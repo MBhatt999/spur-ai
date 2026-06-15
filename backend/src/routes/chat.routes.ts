@@ -13,4 +13,9 @@ router.get(
   chatController.getHistory
 );
 
+router.get(
+  "/conversations",
+  chatController.getConversations
+);
+
 export default router;

@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { chatSchema } from "../validators/chat.validator";
 import { chatService } from "../services/chat.service";
+import { conversationRepository } from "../repositories/conversation.repository";
 
 export const chatController = {
   async sendMessage(
@@ -30,8 +31,9 @@ export const chatController = {
   ) {
     try {
       const conversationId = String(
-  req.params.conversationId
-);
+        req.params.conversationId
+      );
+
       if (!conversationId) {
         return res.status(400).json({
           error: "Conversation ID is required",
@@ -47,6 +49,23 @@ export const chatController = {
     } catch (error) {
       return res.status(500).json({
         error: "Failed to fetch history",
+      });
+    }
+  },
+
+  async getConversations(
+    req: Request,
+    res: Response
+  ) {
+    try {
+      const conversations =
+        await conversationRepository.getAll();
+
+      return res.json(conversations);
+    } catch (error) {
+      return res.status(500).json({
+        error:
+          "Failed to fetch conversations",
       });
     }
   },
