@@ -36,9 +36,8 @@ function App() {
   const loadConversations = async () => {
   try {
     const response = await fetch(
-      "http://localhost:5000/chat/conversations"
+        "https://spur-ai-megf.onrender.com/chat/conversations"
     );
-
     const conversations =
       await response.json();
 
@@ -49,8 +48,8 @@ function App() {
             try {
               const historyResponse =
                 await fetch(
-                  `http://localhost:5000/chat/history/${conversation.id}`
-                );
+                   `https://spur-ai-megf.onrender.com/chat/history/${conversation.id}`
+                 );
 
               const history =
                 await historyResponse.json();
@@ -98,10 +97,10 @@ const startNewChat = () => {
 const openConversation = async (
   id: string
 ) => {
-  try {
-    const response = await fetch(
-      `http://localhost:5000/chat/history/${id}`
-    );
+ try {
+  const response = await fetch(
+    `https://spur-ai-megf.onrender.com/chat/history/${id}`
+  );
 
     const history =
   await response.json();
@@ -148,10 +147,10 @@ setConversationId(id);
     setMessage("");
     setLoading(true);
 
-    try {
-      const response = await fetch(
-        "http://localhost:5000/chat/message",
-        {
+  try {
+  const response = await fetch(
+    "https://spur-ai-megf.onrender.com/chat/message",
+    {
           method: "POST",
           headers: {
             "Content-Type":
@@ -292,11 +291,14 @@ setMessages((prev) => [
                 e.target.value
               )
             }
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
+           onKeyDown={(e) => {
+              if (
+                e.key === "Enter" &&
+                !loading
+              ) {
                 sendMessage();
               }
-            }}
+}}
           />
 
           <button
