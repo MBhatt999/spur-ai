@@ -6,7 +6,9 @@
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-
     "outDir": "./dist"
-  }
+  },
+  "exclude": [
+    "prisma.config.ts"
+  ]
 }
