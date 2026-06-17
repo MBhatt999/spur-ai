@@ -92,11 +92,11 @@ if (
         .join("\n\n");
 
       const historyText = history
-        .map(
-          (msg) =>
-            `${msg.sender}: ${msg.text}`
-        )
-        .join("\n");
+  .map(
+    (msg: any) =>
+      `${msg.sender}: ${msg.text}`
+  )
+  .join("\n");
 
       const prompt = `
 You are a helpful customer support agent for an e-commerce store.
